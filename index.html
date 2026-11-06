@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>RoyalCub Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1/dist/umd/supabase.js"></script>
 <style>
 :root{--plum:#7c3aed;--plum2:#a855f7;--ink:#15112b;--mute:#6f6a85;--bg:#f4f3f9;--card:#fff;--line:#ebe8f3;--navy:#0b0a2e;--ok:#047857;--okbg:rgba(16,185,129,.14);--bad:#dc2626;--badbg:rgba(239,68,68,.12);--warn:#b45309;--warnbg:rgba(245,158,11,.16);--sh:0 1px 2px rgba(21,17,43,.04),0 8px 24px rgba(21,17,43,.06);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--plum:#a78bfa;--plum2:#c084fc;--ink:#f1eefc;--mute:#9a94b8;--bg:#0f0d1c;--card:#191631;--line:#2a2548;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--sh:none}}
@@ -80,8 +80,8 @@ dialog{border:0;border-radius:20px;padding:24px;background:var(--card);color:var
 
 <script>
 /* ===== 1. CONFIG: the only block you need to edit ===== */
-const SUPABASE_URL="YOUR_SUPABASE_URL";           // e.g. https://abcdefgh.supabase.co
-const SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"; // the public anon key (never the service_role key)
+const SUPABASE_URL="https://qrwcbshtafkgbeooohyq.supabase.co"; // Project URL
+const SUPABASE_ANON_KEY="sb_publishable_D2dwzLCS8YaDbAgqDnkJGw_Jm60zQLO"; // public (publishable) key, never the secret/service_role key
 const ADMINS=["admin@royalcubjobs.com","ops@royalcubjobs.com"]; // UI allow-list only; real protection is Row Level Security
 const TBL={profiles:"profiles",reviews:"reviews",activity:"activity"}; // your table names
 const CONFIGURED=/^https:\/\//.test(SUPABASE_URL)&&!/^YOUR_/.test(SUPABASE_ANON_KEY);
