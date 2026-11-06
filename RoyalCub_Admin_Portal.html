@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RoyalCub Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+<style>
+:root{--plum:#7c3aed;--plum2:#a855f7;--ink:#15112b;--mute:#6f6a85;--bg:#f4f3f9;--card:#fff;--line:#ebe8f3;--navy:#0b0a2e;--ok:#047857;--okbg:rgba(16,185,129,.14);--bad:#dc2626;--badbg:rgba(239,68,68,.12);--warn:#b45309;--warnbg:rgba(245,158,11,.16);--sh:0 1px 2px rgba(21,17,43,.04),0 8px 24px rgba(21,17,43,.06);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--plum:#a78bfa;--plum2:#c084fc;--ink:#f1eefc;--mute:#9a94b8;--bg:#0f0d1c;--card:#191631;--line:#2a2548;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--sh:none}}
+:root[data-theme="dark"]{color-scheme:dark;--plum:#a78bfa;--plum2:#c084fc;--ink:#f1eefc;--mute:#9a94b8;--bg:#0f0d1c;--card:#191631;--line:#2a2548;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--sh:none}
+*{box-sizing:border-box}html,body{height:100%;margin:0}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;font-size:14px;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--plum2);outline-offset:2px}.hide{display:none!important}
+.ic{width:18px;height:18px;flex:none}
+#login{min-height:100%;display:grid;place-items:center;padding:20px;background:radial-gradient(900px 500px at 15% 10%,#c4b5fd 0,transparent 60%),radial-gradient(800px 500px at 90% 90%,#fbcfe8 0,transparent 55%),#eef0ff}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) #login{background:radial-gradient(900px 500px at 15% 10%,#3b1d7a 0,transparent 60%),radial-gradient(800px 500px at 90% 90%,#6b1f5a 0,transparent 55%),#0f0d1c}}
+.lbox{background:var(--card);border-radius:28px;padding:40px 34px;width:100%;max-width:410px;box-shadow:0 30px 80px rgba(60,20,100,.22);text-align:center}
+.lbox h1{margin:16px 0 4px;font-size:26px;letter-spacing:-.6px}.lbox p{margin:0 0 26px;color:var(--mute)}
+.gbtn{width:100%;display:flex;gap:10px;align-items:center;justify-content:center;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card);font-weight:600;transition:.15s}
+.gbtn:hover:not(:disabled){border-color:var(--plum2);box-shadow:0 6px 18px rgba(124,58,237,.15)}.note{margin:16px 0 0!important;font-size:12px}.err{color:var(--bad);margin-top:12px;font-weight:600}
+#app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100%}
+aside{background:linear-gradient(180deg,#0b0a2e,#1d1050);color:#fff;padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:17px;padding:4px 8px 22px}.brand small{display:block;font-weight:500;opacity:.55;font-size:11px}
+#nav{display:flex;flex-direction:column;gap:4px}
+.nav{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;color:#b9b5e6;background:none;border:0;text-align:left;font-weight:600;width:100%;transition:.15s}
+.nav:hover{background:rgba(255,255,255,.08);color:#fff}.nav[aria-current=page]{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;box-shadow:0 8px 20px rgba(124,58,237,.4)}
+.nav i{margin-left:auto;background:#ff3b6b;color:#fff;border-radius:10px;font-style:normal;font-size:11px;padding:1px 7px}
+.live{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#b9b5e6;padding:8px 13px}.live i{width:8px;height:8px;border-radius:50%;background:#7c7a99}.live.on i{background:#34d399;box-shadow:0 0 0 4px rgba(52,211,153,.25);animation:pl 2s infinite}
+@keyframes pl{50%{box-shadow:0 0 0 7px rgba(52,211,153,0)}}
+.me{font-size:12px;color:#b9b5e6;padding:12px;background:rgba(255,255,255,.07);border-radius:14px;word-break:break-all}.me button{margin-top:8px;color:#fff;background:rgba(255,255,255,.12);border:0;border-radius:9px;padding:7px 12px;width:100%}
+main{padding:28px 32px 60px;min-width:0;max-width:1280px}
+.ph{margin-bottom:20px}h2{margin:0 0 4px;font-size:26px;letter-spacing:-.6px}.sub{color:var(--mute);margin:0 0 20px}.ph .sub{margin:0}
+.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--plum);font-weight:600;padding:0;margin-bottom:8px}.back .ic{width:16px;height:16px}.back:hover{text-decoration:underline}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--sh);min-width:0}
+.card h3{margin:0 0 14px;font-size:15px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.kpi{position:relative;display:grid;gap:2px;text-align:left;transition:.18s}.kpi:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(124,58,237,.2);border-color:var(--plum2)}
+.ki{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;margin-bottom:12px;color:#fff}
+.t0 .ki{background:linear-gradient(135deg,#7c3aed,#a78bfa)}.t1 .ki{background:linear-gradient(135deg,#2563eb,#60a5fa)}.t2 .ki{background:linear-gradient(135deg,#059669,#34d399)}.t3 .ki{background:linear-gradient(135deg,#db2777,#f472b6)}.t4 .ki{background:linear-gradient(135deg,#d97706,#fbbf24)}.t5 .ki{background:linear-gradient(135deg,#dc2626,#fb7185)}
+.kl{color:var(--mute);font-weight:600;font-size:12.5px}.kpi b{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.1}.kpi small{color:var(--mute);font-size:12px}.kg{position:absolute;top:18px;right:16px;opacity:.3}
+.trow{display:block;width:calc(100% + 20px);margin:0 -10px;text-align:left;background:none;border:0;padding:9px 10px;border-radius:12px}.trow:hover{background:var(--bg)}
+.tr{display:flex;justify-content:space-between}.tr span{color:var(--mute)}
+.bar{height:9px;border-radius:5px;background:var(--line);overflow:hidden;margin:6px 0 2px}.bar div{height:100%;background:linear-gradient(90deg,var(--plum),var(--plum2));border-radius:5px;transition:width .5s}
+.link{background:none;border:0;color:var(--plum);font-weight:600;font-size:12.5px;padding:0}
+.act{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.act:last-child{border:0}.act .av{margin:0}
+.hero{text-align:center;display:grid;place-content:center;gap:4px;min-height:200px}.hero b{font-size:56px;font-weight:800;letter-spacing:-2px;line-height:1}.stars{color:#f59e0b;font-size:20px;letter-spacing:2px}.hero small,.empty{color:var(--mute)}.empty{margin:0}
+.tools{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:7px 13px;font-weight:600;font-size:12.5px;color:var(--mute);transition:.15s}.chip b{margin-left:4px;color:var(--ink)}.chip:hover{border-color:var(--plum2)}.chip[aria-pressed=true]{background:var(--plum);border-color:var(--plum);color:#fff}.chip[aria-pressed=true] b{color:#fff}
+input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}input[type=search]{flex:1;min-width:200px}textarea{width:100%;resize:vertical}
+.tw{overflow-x:auto;padding:6px 8px}table{width:100%;border-collapse:collapse;min-width:640px}th{text-align:left;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;padding:10px;border-bottom:1px solid var(--line)}td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle}tr:last-child td{border:0}tbody tr:hover td,tr:not(:first-child):hover td{background:var(--bg)}
+.btn{background:linear-gradient(135deg,var(--plum),var(--plum2));color:#fff;border:0;border-radius:11px;padding:9px 16px;font-weight:600;transition:.15s}.btn:hover{filter:brightness(1.08)}.btn.alt{background:none;color:var(--ink);border:1px solid var(--line)}.btn.alt:hover{border-color:var(--plum2)}.btn.dng{color:var(--bad);border:1px solid var(--bad);background:none}.btn.sm{padding:6px 11px;font-size:12px}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;background:var(--line);color:var(--mute)}.pill.ok{background:var(--okbg);color:var(--ok)}.pill.bad{background:var(--badbg);color:var(--bad)}.pill.warn{background:var(--warnbg);color:var(--warn)}
+.av{width:36px;height:36px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-weight:700;font-size:12px;vertical-align:middle;margin-right:10px;flex:none}
+.tix{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:16px}
+.tl button{display:block;width:100%;text-align:left;padding:14px;border:0;border-bottom:1px solid var(--line);background:none}.tl button:hover{background:var(--bg)}.tl button[aria-pressed=true]{background:var(--bg);box-shadow:inset 3px 0 var(--plum)}.tl small{color:var(--mute)}
+.msg{background:var(--bg);border-radius:14px;padding:10px 14px;margin:8px 0;max-width:85%}.msg.a{background:linear-gradient(135deg,var(--plum),var(--plum2));color:#fff;margin-left:auto}
+dialog{border:0;border-radius:20px;padding:24px;background:var(--card);color:var(--ink);max-width:420px;width:calc(100% - 32px);box-shadow:0 30px 80px rgba(0,0,0,.35)}dialog::backdrop{background:rgba(10,8,30,.55);backdrop-filter:blur(3px)}
+#toast{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 20px;border-radius:14px;z-index:99;box-shadow:0 12px 30px rgba(0,0,0,.3)}
+.sk{min-height:120px;background:linear-gradient(90deg,var(--line) 25%,var(--bg) 50%,var(--line) 75%);background-size:200% 100%;animation:sh 1.3s infinite}@keyframes sh{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:820px){#app{grid-template-columns:1fr}aside{position:fixed;inset:auto 0 0 0;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:20;border-top:1px solid rgba(255,255,255,.1)}.brand,.me,.live{display:none}#nav{flex:1;flex-direction:row;gap:2px}.nav{flex:1;flex-direction:column;gap:3px;padding:8px 4px;font-size:11px;justify-content:center;position:relative;width:auto}.nav i{position:absolute;top:2px;right:16%;margin:0}main{padding:20px 16px 100px}.tix{grid-template-columns:1fr}h2{font-size:22px}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs><symbol id="lg" viewBox="0 0 48 48"><rect width="48" height="48" rx="13" fill="#050d45"/><path d="M10 31l3-13 7 7 4-11 4 11 7-7 3 13z" fill="#ff9ad5"/><rect x="10" y="33" width="28" height="4" rx="2" fill="#fff"/><circle cx="24" cy="12" r="2.4" fill="#fff"/></symbol></defs></svg>
+
+<section id="login"><div class="lbox">
+<svg width="64" height="64" aria-hidden="true"><use href="#lg"/></svg>
+<h1>RoyalCub Admin</h1><p>Internal portal for the RoyalCub Jobs team</p>
+<button class="gbtn" id="gl"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.800 2.400 30.300 0 24 0 14.600 0 6.500 5.400 2.600 13.200l7.900 6.100C12.400 13.600 17.700 9.500 24 9.500z"/><path fill="#4285F4" d="M46.500 24.500c0-1.600-.1-3.100-.4-4.500H24v9h12.700c-.6 3-2.300 5.500-4.800 7.200l7.600 5.900c4.400-4.100 7-10.100 7-17.600z"/><path fill="#FBBC05" d="M10.500 28.700c-.5-1.400-.8-3-.8-4.700s.3-3.200.8-4.700l-7.900-6.100C.9 16.500 0 20.100 0 24s.9 7.500 2.600 10.800l7.900-6.100z"/><path fill="#34A853" d="M24 48c6.500 0 11.900-2.100 15.900-5.800l-7.600-5.900c-2.100 1.400-4.900 2.300-8.300 2.300-6.300 0-11.600-4.100-13.500-9.800l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>Continue with Google</button>
+<div class="err hide" id="lerr" role="alert"></div>
+<p class="note" id="lnote"></p>
+</div></section>
+
+<div id="app" class="hide">
+<aside><div class="brand"><svg width="36" height="36" aria-hidden="true"><use href="#lg"/></svg><div>RoyalCub<small>Admin portal</small></div></div>
+<nav id="nav" aria-label="Main"></nav><div id="live" class="live"><i></i><span>Connecting…</span></div><div class="me"><span id="who"></span><button onclick="out()">Sign out</button></div></aside>
+<main id="v"></main></div>
+<dialog id="dlg"><form method="dialog"><h3 id="dt" style="margin-top:0"></h3><p id="db" style="color:var(--mute)"></p><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn alt" value="no">Cancel</button><button class="btn dng" value="yes" id="dy">Confirm</button></div></form></dialog>
+<div id="toast" class="hide" role="status"></div>
+
+<script>
+/* ===== 1. CONFIG: the only block you need to edit ===== */
+const SUPABASE_URL="YOUR_SUPABASE_URL";           // e.g. https://abcdefgh.supabase.co
+const SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"; // the public anon key (never the service_role key)
+const ADMINS=["admin@royalcubjobs.com","ops@royalcubjobs.com"]; // UI allow-list only; real protection is Row Level Security
+const TBL={profiles:"profiles",reviews:"reviews",activity:"activity"}; // your table names
+const CONFIGURED=/^https:\/\//.test(SUPABASE_URL)&&!/^YOUR_/.test(SUPABASE_ANON_KEY);
+let sb=null;try{if(CONFIGURED)sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)}catch(e){console.error("Supabase init failed",e)}
+const LIVE=!!sb;
+/* ===== 2. HELPERS & STATE ===== */
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const IC={grid:"M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",users:"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75",user:"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8",brief:"M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16",star:"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z",msg:"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",ban:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20 M4.93 4.93l14.14 14.14",help:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20 M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3 M12 17h.01",left:"M19 12H5 M12 19l-7-7 7-7",right:"M9 18l6-6-6-6"};
+const ico=n=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
+const COL=["#7c3aed","#2563eb","#059669","#d97706","#db2777","#0891b2"];
+const bg=n=>COL[[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%6],ini=n=>n.split(" ").filter(Boolean).map(x=>x[0]).join("").slice(0,2).toUpperCase();
+const stars=n=>"\u2605".repeat(n)+"\u2606".repeat(5-n);
+const D0={
+jobs:[["Fix leaking kitchen pipe","Plumbing","₹800","Anna Reed","Open"],["Deep clean 2BHK flat","Cleaning","₹2,400","Arjun Rao","Open"],["Wire new ceiling fans","Electrical","₹1,500","Meera Shah","Filled"],["Garden maintenance weekly","Gardening","₹3,000/mo","Isha Verma","Open"],["Paint living room","Painting","₹6,500","Dev Malhotra","Closed"],["AC servicing (3 units)","Appliance","₹1,800","Anna Reed","Open"]].map((j,i)=>({id:i+1,t:j[0],c:j[1],b:j[2],by:j[3],s:j[4],d:"Posted "+(i+1)+"d ago. Local job within 10 km."})),
+tix:[["Priya Nair","Can’t update my profile photo","The upload fails every time I try a JPG."],["Dev Malhotra","My account was suspended","Please tell me why my account is suspended."],["Anna Reed","Payment not showing in history","I paid ₹800 on 12 Oct but it’s missing."]].map((t,i)=>({id:"T-"+(1001+i),u:t[0],s:t[1],m:t[2],open:true,thread:[]})),
+notes:{}};
+let S={jobs:D0.jobs,tix:D0.tix,notes:{},users:[],revs:[],activity:[]};Object.assign(S,weekly([]));
+try{const x=JSON.parse(localStorage.getItem("rcAdmin")||"null");if(x&&typeof x==="object")["jobs","tix","notes"].forEach(k=>{if(x[k])S[k]=x[k]})}catch(e){}
+const save=()=>{try{localStorage.setItem("rcAdmin",JSON.stringify({jobs:S.jobs,tix:S.tix,notes:S.notes}))}catch(e){}};
+let page="dash",sel=S.tix[0].id,tm,loading=false,loadErr="",uq="",uf="All",rf="All",ch=null,rt=null,poll=null;
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.remove("hide");clearTimeout(tm);tm=setTimeout(()=>t.classList.add("hide"),2800)};
+function ask(t,b,fn){$("#dt").textContent=t;$("#db").textContent=b;const d=$("#dlg");d.returnValue="";d.onclose=()=>{if(d.returnValue==="yes")fn()};d.showModal()}
+/* ===== 3. AUTH (Supabase Google sign-in) ===== */
+const showErr=m=>{const e=$("#lerr");e.textContent=m;e.classList.remove("hide")};
+function showLogin(){stopRealtime();$("#app").classList.add("hide");$("#login").classList.remove("hide");$("#v").innerHTML="";Object.assign(S,{users:[],revs:[],activity:[]},weekly([]))}
+function enter(em){$("#lerr").classList.add("hide");$("#login").classList.add("hide");$("#app").classList.remove("hide");$("#who").textContent=em;page="dash";load();startRealtime()}
+async function admit(session){const em=((session.user&&session.user.email)||"").toLowerCase();
+ if(!ADMINS.includes(em)){await sb.auth.signOut();showErr((em||"This account")+" isn\u2019t authorised for admin access.");return}enter(em)}
+$("#gl").onclick=async()=>{if(!LIVE)return;const{error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname.replace(/index\.html$/,"")}});if(error)showErr(error.message)};
+function out(){$("#lerr").classList.add("hide");if(LIVE)sb.auth.signOut();showLogin()}
+/* ===== 4. DATA LAYER (Supabase -> state, with Realtime) ===== */
+const rate=v=>Math.max(0,Math.min(5,Math.round(+v)||0)),txt=v=>typeof v==="string"?v:"";
+const nUser=r=>({id:String(r.id),name:String(r.full_name||r.name||r.email||"Unnamed"),email:String(r.email||"\u2014"),phone:String(r.phone||"\u2014"),city:String(r.city||"\u2014"),
+ type:/client|customer/i.test(r.user_type||r.role||r.type||"")?"Client":"Service provider",status:(r.status==="suspended"||r.is_suspended===true)?"suspended":"active",at:r.created_at});
+const nRev=(r,nm)=>({id:String(r.id),from:nm[String(r.reviewer_id)]||"Unknown user",to:nm[String(r.reviewee_id)]||"Unknown user",toId:String(r.reviewee_id||""),r:rate(r.rating),t:txt(r.comment)||txt(r.review),hidden:r.is_hidden===true,at:r.created_at});
+const nAct=(a,nm)=>({id:String(a.id),who:nm[String(a.user_id)]||"System",action:txt(a.action)||txt(a.type)||"Activity",detail:txt(a.details)||txt(a.description),at:a.created_at});
+const ago=t=>{const s=(Date.now()-new Date(t))/1e3;if(isNaN(s))return"";const m=Math.floor(s/60);return s<60?"just now":m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
+const wk=rows=>rows.filter(x=>Date.now()-new Date(x.at)<6048e5).length;
+function weekly(rows){const t=new Date();t.setHours(0,0,0,0);const days=[],W=[0,0,0,0,0,0,0];
+ for(let i=6;i>=0;i--){const d=new Date(t);d.setDate(t.getDate()-i);days.push(d.toLocaleDateString("en",{weekday:"short"}))}
+ rows.forEach(r=>{const d=new Date(r.at);if(isNaN(d))return;d.setHours(0,0,0,0);const k=Math.round((t-d)/864e5);if(k>=0&&k<7)W[6-k]++});
+ return{weekly:W,days}}
+async function load(silent){
+ if(!LIVE)return;if(!silent){loading=true;loadErr="";go(page)}
+ try{
+  const names=[TBL.profiles,TBL.reviews,TBL.activity],lim=[1000,1000,200];
+  const res=await Promise.all(names.map((t,i)=>sb.from(t).select("*").order("created_at",{ascending:false}).limit(lim[i])));
+  if($("#app").classList.contains("hide")){loading=false;return} // signed out while loading
+  const bad=res.findIndex(r=>r.error);if(bad>-1)throw new Error(names[bad]+": "+res[bad].error.message);
+  S.users=res[0].data.map(nUser);const nm={};S.users.forEach(u=>nm[u.id]=u.name);
+  S.revs=res[1].data.map(r=>nRev(r,nm));S.activity=res[2].data.map(a=>nAct(a,nm));
+  Object.assign(S,weekly(S.users));loadErr="";
+ }catch(e){if(silent){loading=false;return}loadErr=e&&e.message?e.message:String(e)}
+ loading=false;if(!silent)go(page);else if(["dash","users","revs","ratings"].includes(page))keepRender()}
+function keepRender(){const a=document.activeElement,id=a&&a.id,pos=a&&a.selectionStart;go(page,true);
+ if(id==="q"||id==="jq_"){const e=document.getElementById(id);if(e){e.focus();try{e.setSelectionRange(pos,pos)}catch(_){}}}}
+const setLive=on=>{$("#live").className="live"+(on?" on":"");$("#live span").textContent=on?"Live":"Auto-refresh"};
+function startRealtime(){if(!LIVE||ch)return;const t=()=>{clearTimeout(rt);rt=setTimeout(()=>load(true),500)};
+ ch=sb.channel("rc-admin");[TBL.profiles,TBL.reviews,TBL.activity].forEach(n=>ch.on("postgres_changes",{event:"*",schema:"public",table:n},t));
+ ch.subscribe(s=>setLive(s==="SUBSCRIBED"));
+ poll=setInterval(()=>{if(!document.hidden)load(true)},60000)} // fallback if Realtime isn't enabled on a table
+function stopRealtime(){clearTimeout(rt);clearInterval(poll);if(ch&&sb)sb.removeChannel(ch);ch=null;if($("#live"))setLive(false)}
+async function sync(req){try{const{data,error}=await req();if(error){toast("Failed: "+error.message);return false}
+  if(!data||!data.length){toast("Not saved \u2014 check your Supabase RLS policies");return false}return true}
+ catch(e){toast("Failed: "+(e.message||e));return false}}
+/* ===== 5. VIEWS ===== */
+const NAV=[["dash","Dashboard"],["users","Users"],["jobs","Job posts"],["revs","Reviews"],["help","Help"]],NI={dash:"grid",users:"users",jobs:"brief",revs:"msg",help:"help"};
+const SKEL='<div class="grid g4">'+'<div class="card sk"></div>'.repeat(6)+'</div><div class="grid g2" style="margin-top:16px"><div class="card sk" style="height:220px"></div><div class="card sk" style="height:220px"></div></div>';
+const errv=()=>`<div class="card"><h3>Couldn\u2019t load data</h3><p class="err" style="margin-top:0">${esc(loadErr)}</p><button class="btn" onclick="load()">Retry</button></div>`;
+const head=(t,s,back)=>`<div class="ph">${back?`<button class="back" data-go="dash">${ico("left")} Dashboard</button>`:""}<h2>${t}</h2><p class="sub">${s}</p></div>`;
+function go(p,keep){page=p;const o=S.tix.filter(t=>t.open).length,cur=p==="ratings"?"revs":p;
+ $("#nav").innerHTML=NAV.map(([k,l])=>`<button class="nav" ${k===cur?'aria-current="page"':""} data-go="${k}">${ico(NI[k])}<span>${l}</span>${k==="help"&&o?`<i>${o}</i>`:""}</button>`).join("");
+ const gate=["dash","users","revs","ratings"].includes(p)?(loading?SKEL:loadErr?errv():""):"";
+ $("#v").innerHTML=gate||({dash,users,jobs,revs,help,ratings})[p]();if(!keep)scrollTo(0,0)}
+function dist(R){const n=R.length;return[5,4,3,2,1].map(k=>{const c=R.filter(r=>r.r===k).length,p=n?Math.round(c/n*100):0;
+ return `<button class="trow" data-go="revs" data-f="${k}"><div class="tr"><b>${k} \u2605</b><span>${c} \u00b7 ${p}%</span></div><div class="bar"><div style="width:${p}%"></div></div></button>`}).join("")}
+function dash(){const U=S.users,R=S.revs,A=S.activity,c=U.filter(u=>u.type==="Client").length,w=U.length-c,s=U.filter(u=>u.status==="suspended").length,
+ W=S.weekly,D=S.days,mx=Math.max(1,...W),n=R.length,avg=n?(R.reduce((a,r)=>a+r.r,0)/n).toFixed(1):"\u2013",pct=k=>U.length?Math.round(k/U.length*100):0;
+ const K=[["users","Total users",U.length,"+"+wk(U)+" this week","users",""],["user","Clients",c,pct(c)+"% of users","users","Client"],["brief","Service providers",w,pct(w)+"% of users","users","Service provider"],
+  ["msg","Reviews",n,"+"+wk(R)+" this week","revs",""],["star","Average rating",avg,"out of 5","ratings",""],["ban","Suspended",s,"accounts","users","Suspended"]];
+ const pts=W.map((v,i)=>[30+i*(440/6),170-v/mx*140]),pl=pts.map(p=>p.join(",")).join(" "),ar="M30,170 L"+pts.map(p=>p.join(",")).join(" L")+" L470,170Z";
+ return `${head("Dashboard","Live overview of RoyalCub Jobs \u00b7 click any card to drill in")}
+ ${!U.length?'<div class="card" style="margin-bottom:16px">No profiles were returned. Check the table name and your Row Level Security policies.</div>':""}
+ <div class="grid g4">${K.map((k,i)=>`<button class="card kpi t${i}" data-go="${k[4]}" data-f="${k[5]}"><span class="ki">${ico(k[0])}</span><span class="kl">${k[1]}</span><b>${k[2]}</b><small>${k[3]}</small><span class="kg">${ico("right")}</span></button>`).join("")}</div>
+ <div class="grid g2" style="margin-top:16px"><div class="card"><h3>Users by type</h3>
+ ${[["Clients",c,"Client"],["Service providers",w,"Service provider"]].map(([l,k,f])=>`<button class="trow" data-go="users" data-f="${f}"><div class="tr"><b>${l}</b><span>${k} \u00b7 ${pct(k)}%</span></div><div class="bar"><div style="width:${pct(k)}%"></div></div></button>`).join("")}</div>
+ <div class="card"><h3>Rating breakdown <button class="link" data-go="ratings">View all</button></h3>${dist(R)}</div></div>
+ <div class="grid g2" style="margin-top:16px"><div class="card"><h3>Weekly user growth <span class="pill ok">+${W.reduce((a,b)=>a+b,0)} sign-ups</span></h3>
+ <svg viewBox="0 0 500 200" role="img" aria-label="New users per day: ${W.join(", ")}" style="width:100%;height:auto"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--plum);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--plum);stop-opacity:0"/></linearGradient></defs><path d="${ar}" fill="url(#ga)"/><polyline points="${pl}" fill="none" stroke="var(--plum)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="var(--card)" stroke="var(--plum)" stroke-width="2.5"/><text x="${p[0]}" y="${p[1]-11}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">${W[i]}</text><text x="${p[0]}" y="192" text-anchor="middle" font-size="11" fill="var(--mute)">${esc(D[i])}</text>`).join("")}</svg></div>
+ <div class="card"><h3>Recent activity</h3>${A.slice(0,6).map(a=>`<div class="act"><span class="av" style="background:${bg(a.who)}">${ini(a.who)}</span><span style="flex:1;min-width:0"><b>${esc(a.who)}</b> \u00b7 ${esc(a.action)}${a.detail?`<br><small style="color:var(--mute)">${esc(a.detail)}</small>`:""}</span><small style="color:var(--mute);white-space:nowrap">${ago(a.at)}</small></div>`).join("")||'<p class="empty">No recent activity.</p>'}</div></div>`}
+const UT={All:"Users",Client:"Clients","Service provider":"Service providers",Suspended:"Suspended users"};
+function users(){const q=uq.toLowerCase(),U=S.users,
+ cnt={All:U.length,Client:U.filter(u=>u.type==="Client").length,"Service provider":U.filter(u=>u.type!=="Client").length,Suspended:U.filter(u=>u.status==="suspended").length},
+ L=U.filter(u=>(uf==="All"||(uf==="Suspended"?u.status==="suspended":u.type===uf))&&(u.name+u.email+u.city).toLowerCase().includes(q));
+ return `${head(UT[uf],"View and manage user profiles",uf!=="All")}<div class="tools"><input type="search" id="q" placeholder="Search name, email or city" aria-label="Search users" value="${esc(uq)}" oninput="uq=this.value;rl('users','q')"><div class="chips">${Object.keys(UT).map(k=>`<button class="chip" aria-pressed="${k===uf}" data-go="users" data-f="${k==="All"?"":k}">${k==="All"?"All":UT[k]} <b>${cnt[k]}</b></button>`).join("")}</div></div>
+ <div class="card tw"><table><tr><th>User<th>Type<th>City<th>Joined<th>Status<th></tr>${L.map(u=>`<tr><td><span class="av" style="background:${bg(u.name)}">${ini(u.name)}</span><b>${esc(u.name)}</b><br><small style="color:var(--mute)">${esc(u.email)} \u00b7 ${esc(u.phone)}</small><td><span class="pill">${u.type}</span><td>${esc(u.city)}<td>${ago(u.at)||"\u2014"}<td><span class="pill ${u.status==="active"?"ok":"bad"}">${u.status}</span><td style="text-align:right"><button class="btn alt sm" data-act="tog" data-id="${esc(u.id)}">${u.status==="active"?"Suspend":"Reactivate"}</button></td></tr>`).join("")||'<tr><td colspan="6">No users match.</td></tr>'}</table></div>`}
+function rl(p,id){const pos=document.getElementById(id).selectionStart;go(p,true);const e=document.getElementById(id);e.focus();e.setSelectionRange(pos,pos)}
+function revs(){const R=S.revs,keys=["All","5","4","3","2","1","Hidden"],cnt=k=>k==="All"?R.length:k==="Hidden"?R.filter(r=>r.hidden).length:R.filter(r=>r.r===+k).length,
+ L=R.filter(r=>rf==="All"||(rf==="Hidden"?r.hidden:r.r===+rf));
+ return `${head(rf==="All"?"Reviews":rf==="Hidden"?"Hidden reviews":rf+"-star reviews","Hide reviews from public view or delete them permanently",rf!=="All")}<div class="tools"><div class="chips">${keys.map(k=>`<button class="chip" aria-pressed="${k===rf}" data-go="revs" data-f="${k==="All"?"":k}">${k==="All"||k==="Hidden"?k:k+" \u2605"} <b>${cnt(k)}</b></button>`).join("")}</div></div>
+ <div class="card tw"><table><tr><th>Review<th>Rating<th>Status<th></tr>${L.map(r=>`<tr><td><b>${esc(r.from)}</b> \u2192 ${esc(r.to)} <small style="color:var(--mute)">\u00b7 ${ago(r.at)}</small><br>${esc(r.t)}<td style="color:#f59e0b;white-space:nowrap">${stars(r.r)}<td><span class="pill ${r.hidden?"warn":"ok"}">${r.hidden?"Hidden":"Visible"}</span><td style="text-align:right;white-space:nowrap"><button class="btn alt sm" data-act="hr" data-id="${esc(r.id)}">${r.hidden?"Unhide":"Hide"}</button> <button class="btn dng sm" data-act="dr" data-id="${esc(r.id)}">Delete</button></td></tr>`).join("")||'<tr><td colspan="4">No reviews.</td></tr>'}</table></div>`}
+function ratings(){const R=S.revs,n=R.length,a=n?R.reduce((x,r)=>x+r.r,0)/n:0,m={};
+ R.forEach(r=>{const k=r.toId||r.to,e=m[k]||(m[k]={name:r.to,n:0,s:0});e.n++;e.s+=r.r});
+ const L=Object.values(m).map(e=>({name:e.name,n:e.n,a:e.s/e.n})).sort((x,y)=>y.a-x.a||y.n-x.n),top=L.slice(0,5),low=L.slice(Math.max(5,L.length-5)).reverse(),
+ row=e=>`<div class="act"><span class="av" style="background:${bg(e.name)}">${ini(e.name)}</span><span style="flex:1"><b>${esc(e.name)}</b><br><small style="color:var(--mute)">${e.n} review${e.n===1?"":"s"}</small></span><b>${e.a.toFixed(1)} \u2605</b></div>`;
+ return `${head("Ratings","How users are rated across the platform",true)}<div class="grid g2"><div class="card hero"><small>Average rating</small><b>${n?a.toFixed(1):"\u2013"}</b><div class="stars">${stars(Math.round(a))}</div><small>from ${n} review${n===1?"":"s"}</small></div><div class="card"><h3>Distribution <small style="color:var(--mute);font-weight:500">click to filter</small></h3>${dist(R)}</div></div>
+ <div class="grid g2" style="margin-top:16px"><div class="card"><h3>Top rated</h3>${top.map(row).join("")||'<p class="empty">No reviews yet.</p>'}</div><div class="card"><h3>Lowest rated</h3>${low.map(row).join("")||'<p class="empty">Nothing to show.</p>'}</div></div>`}
+async function tog(id){const u=S.users.find(x=>String(x.id)===id);if(!u)return;const ns=u.status==="active"?"suspended":"active";
+ ask((ns==="suspended"?"Suspend ":"Reactivate ")+u.name+"?","This changes whether they can sign in to RoyalCub Jobs.",async()=>{
+  if(!await sync(()=>sb.from(TBL.profiles).update({status:ns}).eq("id",id).select()))return;
+  u.status=ns;go("users",true);toast("Updated "+u.name)})}
+async function hr(id){const r=S.revs.find(x=>String(x.id)===id);if(!r)return;const h=!r.hidden;
+ if(!await sync(()=>sb.from(TBL.reviews).update({is_hidden:h}).eq("id",id).select()))return;
+ r.hidden=h;go("revs",true);toast(h?"Review hidden":"Review visible")}
+function dr(id){ask("Delete this review?","This can\u2019t be undone.",async()=>{
+ if(!await sync(()=>sb.from(TBL.reviews).delete().eq("id",id).select()))return;
+ S.revs=S.revs.filter(x=>String(x.id)!==id);go("revs",true);toast("Review deleted")})}
+function jobs(){const q=(window.jq||"").toLowerCase(),L=S.jobs.filter(j=>(j.t+j.c+j.by).toLowerCase().includes(q));
+ return `<h2>Job posts</h2><p class="sub">Search and review posts from clients <span class="pill warn">Sample data</span></p><div class="tools"><input type="search" id="jq_" placeholder="Search title, category or poster" aria-label="Search job posts" value="${esc(window.jq||"")}" oninput="jq=this.value;rl('jobs','jq_')"></div>
+ <div class="grid g2">${L.map(j=>`<div class="card"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(j.t)}</b><span class="pill ${j.s==="Open"?"ok":""}">${j.s}</span></div><p style="margin:6px 0;color:var(--mute)">${j.c} · ${j.b} · by ${esc(j.by)}</p><p style="margin:0 0 12px">${esc(j.d)}</p><button class="btn alt sm" onclick="dj(${j.id})">Remove post</button></div>`).join("")||'<div class="card">No posts match.</div>'}</div>`}
+function dj(id){const j=S.jobs.find(x=>x.id===id);ask("Remove “"+j.t+"”?","This permanently deletes the post.",()=>{S.jobs=S.jobs.filter(x=>x.id!==id);save();go("jobs");toast("Post removed")})}
+function help(){const t=S.tix.find(x=>x.id===sel)||S.tix[0];
+ return `<h2>Help</h2><p class="sub">Replies are delivered straight to the user’s in-app notifications <span class="pill warn">Sample data</span></p><div class="tix"><div class="card tl" style="padding:0">${S.tix.map(x=>`<button aria-pressed="${x.id===sel}" onclick="sel='${x.id}';go('help')"><b>${esc(x.s)}</b><br><small>${x.id} · ${esc(x.u)} · ${x.open?"Open":"Replied"}</small></button>`).join("")}</div>
+ <div class="card">${t?`<h3>${esc(t.s)} <span class="pill ${t.open?"warn":"ok"}">${t.open?"Open":"Replied"}</span></h3><div class="msg"><b>${esc(t.u)}</b><br>${esc(t.m)}</div>${t.thread.map(m=>`<div class="msg a">${esc(m)}</div>`).join("")}
+ <textarea id="rp" rows="4" placeholder="Write a reply to ${esc(t.u)}…" aria-label="Reply"></textarea><div style="margin-top:10px;display:flex;gap:8px;align-items:center"><button class="btn" onclick="rep('${t.id}')">Send to notifications</button><small style="color:var(--mute)">${(S.notes[t.u]||[]).length} notification(s) sent to ${esc(t.u)}</small></div>`:"No tickets."}</div></div>`}
+function rep(id){const t=S.tix.find(x=>x.id===id),v=$("#rp").value.trim();if(!v){toast("Write a reply first");return}
+ t.thread.push(v);t.open=false;(S.notes[t.u]=S.notes[t.u]||[]).push({ref:t.id,text:v,at:Date.now(),read:false});save();go("help");toast("Reply sent to "+t.u+"’s notifications")}
+/* ===== 6. INIT ===== */
+const ACT={tog,hr,dr};
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");
+ if(g){const p=g.dataset.go,f=g.dataset.f||"All";if(p==="users"){if(page!=="users")uq="";uf=f}if(p==="revs")rf=f;go(p);return}
+ const b=e.target.closest("[data-act]");if(b&&ACT[b.dataset.act])ACT[b.dataset.act](b.dataset.id)});
+$("#gl").disabled=!LIVE;
+(()=>{const q=new URLSearchParams(location.hash.slice(1)+"&"+location.search.slice(1)),m=q.get("error_description")||q.get("error");
+ if(m){showErr(m);history.replaceState(null,"",location.pathname)}})(); // show Google/Supabase sign-in errors instead of failing silently
+$("#lnote").textContent=LIVE?"Sign in with an authorised Google account.":CONFIGURED?"Supabase could not be loaded.":"Setup needed: add your Supabase URL and anon key in the CONFIG block of this file.";
+if(location.protocol==="file:")showErr("Google sign-in can\u2019t work when this file is opened directly. Open it from your GitHub Pages address.");
+if(LIVE){sb.auth.onAuthStateChange(ev=>{if(ev==="SIGNED_OUT")showLogin()});
+ sb.auth.getSession().then(r=>{const s=r.data&&r.data.session;if(s)return admit(s)}).catch(e=>showErr(e.message||String(e)))}
+
+</script></body></html>
